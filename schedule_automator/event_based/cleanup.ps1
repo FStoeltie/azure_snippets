@@ -2,7 +2,7 @@ Param(
     [Parameter (Mandatory = $true)]
     [String] $RUNBOOKSTAG,
     [Parameter (Mandatory = $true)]
-    [String] $AUTOMATIONACCOUNTNAME
+    [String] $AUTOMATIONACCOUNTNAME,
     [Parameter (Mandatory = $true)]
     [String] $SUBSCRIPTIONID
 )
