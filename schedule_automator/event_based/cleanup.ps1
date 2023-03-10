@@ -2,7 +2,7 @@ Param(
     [Parameter (Mandatory = $true)]
     [String] $RUNBOOKSTAG,
     [Parameter (Mandatory = $true)]
-    [String] $AUTOMATIONACCOUNT
+    [String] $AUTOMATIONACCOUNTNAME
     [Parameter (Mandatory = $true)]
     [String] $SUBSCRIPTIONID
 )
@@ -13,11 +13,11 @@ $AzureContext = (Connect-AzAccount -Identity).context
 $AzureContext = Set-AzContext -SubscriptionId $SUBSCRIPTIONID -DefaultProfile $AzureContext
 
 
-$runbooks = Get-AzAutomationScheduledRunbook -ResourceGroupName "rg-management" -AutomationAccountName $AUTOMATIONACCOUNT |  Where-Object { $_.ScheduleName -like "*$RUNBOOKSTAG*"}
+$runbooks = Get-AzAutomationScheduledRunbook -ResourceGroupName "rg-management" -AutomationAccountName $AUTOMATIONACCOUNTNAME |  Where-Object { $_.ScheduleName -like "*$RUNBOOKSTAG*"}
 
 foreach ($item in $runbooks) {
-	Remove-AzAutomationSchedule -Name $item.ScheduleName -ResourceGroupName $item.ResourceGroupName -AUTOMATIONACCOUNT $item.AutomationAccountName -Force
+	Remove-AzAutomationSchedule -Name $item.ScheduleName -ResourceGroupName $item.ResourceGroupName -AUTOMATIONACCOUNTNAME $item.AutomationAccountName -Force
 }
 foreach ($item in $runbooks){
-	Remove-AzAutomationRunbook -Name $item.RunbookName -ResourceGroupName $item.ResourceGroupName -AUTOMATIONACCOUNT  $item.AutomationAccountName -Force
+	Remove-AzAutomationRunbook -Name $item.RunbookName -ResourceGroupName $item.ResourceGroupName -AUTOMATIONACCOUNTNAME  $item.AutomationAccountName -Force
 }
