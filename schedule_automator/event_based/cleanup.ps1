@@ -1,21 +1,23 @@
 Param(
     [Parameter (Mandatory = $true)]
-    [String] $RunbooksTag,
+    [String] $RUNBOOKSTAG,
     [Parameter (Mandatory = $true)]
-    [String] $AutomationAccountName
+    [String] $AUTOMATIONACCOUNT
+    [Parameter (Mandatory = $true)]
+    [String] $SUBSCRIPTIONID
 )
 # Ensures you do not inherit an AzContext in your runbook
 Disable-AzContextAutosave -Scope Process
 # Connect to Azure with system-assigned managed identity
 $AzureContext = (Connect-AzAccount -Identity).context
-$AzureContext = Set-AzContext -SubscriptionId $SubscriptionId -DefaultProfile $AzureContext
+$AzureContext = Set-AzContext -SubscriptionId $SUBSCRIPTIONID -DefaultProfile $AzureContext
 
 
-$runbooks = Get-AzAutomationScheduledRunbook -ResourceGroupName "rg-management" -AutomationAccountName $AutomationAccountName |  Where-Object { $_.ScheduleName -like "*$RunbooksTag*"}
+$runbooks = Get-AzAutomationScheduledRunbook -ResourceGroupName "rg-management" -AutomationAccountName $AUTOMATIONACCOUNT |  Where-Object { $_.ScheduleName -like "*$RUNBOOKSTAG*"}
 
 foreach ($item in $runbooks) {
-	Remove-AzAutomationSchedule -Name $item.ScheduleName -ResourceGroupName $item.ResourceGroupName -AutomationAccountName $item.AutomationAccountName -Force
+	Remove-AzAutomationSchedule -Name $item.ScheduleName -ResourceGroupName $item.ResourceGroupName -AUTOMATIONACCOUNT $item.AutomationAccountName -Force
 }
 foreach ($item in $runbooks){
-	Remove-AzAutomationRunbook -Name $item.RunbookName -ResourceGroupName $item.ResourceGroupName -AutomationAccountName  $item.AutomationAccountName -Force
+	Remove-AzAutomationRunbook -Name $item.RunbookName -ResourceGroupName $item.ResourceGroupName -AUTOMATIONACCOUNT  $item.AutomationAccountName -Force
 }
