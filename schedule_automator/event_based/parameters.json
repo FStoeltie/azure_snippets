@@ -1,0 +1,45 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "automationAccountName": {
+            "value": "prod-euw-01-management-automation"
+        },
+        "resourceLocation": {
+            "value": "WestEurope"
+        },
+        "automationPSUrl": {
+            "value": "https://raw.githubusercontent.com/FStoeltie/azure_snippets/main/schedule_automator/event_based/automate.ps1"
+        },
+        "cleanupPSUrl": {
+            "value": "https://raw.githubusercontent.com/FStoeltie/azure_snippets/main/schedule_automator/event_based/cleanup.ps1"
+        },
+        "cleanUpTime": {
+            "value": "03-10-2023 16:09:00"
+        },
+        "startTimes": {
+            "value": [
+                {
+                    "name": "dayOne",
+                    "startTime": "03-15-2023 18:00:00"
+                },
+                {
+                    "name": "dayTwo",
+                    "startTime": "03-16-2023 17:30:00"
+                }
+            ]
+        },
+        "stopTimes": {
+            "value": [
+                {
+                    "name": "dayOne",
+                    "startTime": "03-15-2023 18:00:00"
+                },
+                {
+                    "name": "dayTwo",
+                    "startTime": "03-16-2023 17:30:00"
+                }
+            ]
+        }
+    }
+}

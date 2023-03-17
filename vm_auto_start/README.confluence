@@ -1,0 +1,102 @@
+h1. Azure Autostart VM snippets
+
+Contains snippets that can be used as an example to schedule and autostart a VM.
+It requires an existing Resource Group (RG), Virtual Machine (VM)
+
+h2. Methods of deployment
+
+There are various approaches to configure autostart for a VM. Apart from those various approaches, there are also various ways to deploy such a configuration, such as:
+
+* Azure Portal (Web portal);
+* Powershell (7+) with the Azure module;
+* Azure Command Line Interface (CLI);
+* Azure Resource Manager templates (ARM).
+
+h2. Create a new automation schedule
+
+An Azure service called [Azure Automation|https://learn.microsoft.com/en-us/azure/automation/overview] is required as a container to place schedules (triggers) in. Runbooks 
+
+h2. Configuring autostart with an Automation schedule
+
+One configuration method is to [create a schedule|https://learn.microsoft.com/en-us/azure/automation/shared-resources/schedules] in an automation account. The steps required are:
+# Create an Automation Account;
+# Create a schedule to trigger the runbook;
+# Create a runbook;
+# Link the schedule to the trigger.
+
+It is also possible to create a runbook and create a schedule that is directly attached to the runbook through the Azure portal - instead of linking it after both the runbook and schedule are created.
+
+h3. Set variables used
+
+{code:Powershell|title=SetVariables|borderStyle=solid}
+# Variables
+$RESOURCE_GROUP = "resource_group_name"
+# Automation account where the schedule will be created in
+$AUTOMATION_ACCOUNT = "automation_account_name"
+# Name of the schedule that will be created
+$SCHEDULE_NAME = "new_schedule_name"
+# Start time or datetime
+$START_TIME = "start_time_24h_as_string"
+[System.DayOfWeek[]]$WEEK_DAYS = @([System.DayOfWeek]::Monday..[System.DayOfWeek]::Friday)
+{code}
+
+h3. Create new Azure Automation Account
+
+{code:Powershell|title=title|borderStyle=solid}
+# Create new Automation Account
+New-AzAutomationAccount -Name $AUTOMATION_ACCOUNT `
+    -Location $LOCATION `
+    -ResourceGroupName $RESOURCE_GROUP
+{code}
+
+h3. Create new Automation Schedule
+{code:Powershell|title=CreateAutomationSchedule|borderStyle=solid}
+
+# Create a new schedule in an existing Automation Account that runs 
+# From monday to friday at a specified time
+New-AzAutomationSchedule -AutomationAccountName $AUTOMATION_ACCOUNT `
+    -Name $SCHEDULE_NAME `
+    -StartTime $START_TIME ` 
+    -ResourceGroupName $RESOURCE_GROUP `
+    -DaysOfWeek $WEEK_DAYS `
+    -WeekInterval 1
+
+{code}
+
+h3. Register the runbook to schedule
+
+{{code:Powershell|title=RegisterScheduleToRunbook|borderStyle=solid}
+# Link schedule to runbook with runtime parameter
+$params = @{"ScheduleGroup"}
+Register-AzAutomationScheduledRunbook -AutomationAccountName $AUTOMATION_ACCOUNT `
+    -Name $RUNBOOK `
+    -ResourceGroupName $RESOURCE_GROUP `
+    -ScheduleName $SCHEDULE_NAME `
+    -Parameters $params
+
+{code}}
+
+h3. The runbook script
+
+The runbook script to start Virtual Machines in a subscription with a tag set to the value that equals the parameter _$ScheduleGroup_.
+
+{code:Powershell|title=Start VM example|borderStyle=solid}
+Param(
+    [Parameter (Mandatory = $true)]
+    [String] $ScheduleGroup,
+    [Parameter (Mandatory = $true)]
+    [String] $SubscriptionId
+)
+# Ensures you do not inherit an AzContext in your runbook
+Disable-AzContextAutosave -Scope Process
+# Connect to Azure with system-assigned managed identity
+$AzureContext = (Connect-AzAccount -Identity).context
+$AzureContext = Set-AzContext -SubscriptionId $SubscriptionId -DefaultProfile $AzureContext
+
+#Automation
+$VIRTUAL_MACHINES = Get-AzVM | Where-Object { $_.Tags.Values -like "$($ScheduleGroup)" }
+$VIRTUAL_MACHINES | Start-AzVM
+Write-Output $VIRTUAL_MACHINES.Name
+
+
+{code}
