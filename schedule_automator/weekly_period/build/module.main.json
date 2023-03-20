@@ -1,0 +1,70 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.15.31.15270",
+      "templateHash": "11225063434985795887"
+    }
+  },
+  "parameters": {
+    "automationAccountName": {
+      "type": "string"
+    },
+    "days": {
+      "type": "array"
+    },
+    "uniqueId": {
+      "type": "string",
+      "defaultValue": "[guid(newGuid(), parameters('automationAccountName'))]"
+    }
+  },
+  "variables": {
+    "templateSpecName": "automationaccount",
+    "version": "0.0.1",
+    "releaseNotes": "Template to deploy automation account"
+  },
+  "resources": [
+    {
+      "copy": {
+        "name": "dayStartSchedules",
+        "count": "[length(parameters('days'))]"
+      },
+      "condition": "[empty(parameters('days')[copyIndex()].startTime)]",
+      "type": "Microsoft.Automation/automationAccounts/schedules",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), format('start-{0}-{1}', parameters('days')[copyIndex()].name, parameters('uniqueId')))]",
+      "properties": {
+        "advancedSchedule": {
+          "weekDays": [
+            "[parameters('days')[copyIndex()].name]"
+          ]
+        },
+        "description": "string",
+        "frequency": "Week",
+        "startTime": "[parameters('days')[copyIndex()].startTime]"
+      }
+    },
+    {
+      "copy": {
+        "name": "dayEndSchedules",
+        "count": "[length(parameters('days'))]"
+      },
+      "condition": "[empty(parameters('days')[copyIndex()].endTime)]",
+      "type": "Microsoft.Automation/automationAccounts/schedules",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), format('end-{0}-{1}', parameters('days')[copyIndex()].name, parameters('uniqueId')))]",
+      "properties": {
+        "advancedSchedule": {
+          "weekDays": [
+            "[parameters('days')[copyIndex()].name]"
+          ]
+        },
+        "description": "string",
+        "frequency": "Week",
+        "startTime": "[parameters('days')[copyIndex()].startTime]"
+      }
+    }
+  ]
+}

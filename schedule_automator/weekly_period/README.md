@@ -1,0 +1,1 @@
+.\bootstrap.ps1 -Bootstrap -InstallVsCode -InstallAzureCLI
