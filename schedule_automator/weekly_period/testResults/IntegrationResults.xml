@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="5" errors="0" failures="5" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2023-03-20" time="14:16:32">
+  <environment nunit-version="2.5.8.0" user="FerdiStoelti" user-domain="AzureAD" platform="Microsoft Windows 11 Enterprise|C:\Windows|\Device\Harddisk0\Partition3" clr-version="Unknown" cwd="C:\work\quickfix2\azure_snippets\schedule_automator\weekly_period" os-version="10.0.22621" machine-name="LMDIL005" />
+  <culture-info current-culture="nl-NL" current-uiculture="nl-NL" />
+  <test-suite type="TestFixture" name="Pester" executed="True" result="Failure" success="False" time="2.8024" asserts="0" description="Pester">
+    <results>
+      <test-suite type="TestFixture" name="C:\work\quickfix2\azure_snippets\schedule_automator\weekly_period\src\main\.tests\integration\module.main.tests.ps1" executed="True" result="Failure" success="False" time="2.8024" asserts="0" description="C:\work\quickfix2\azure_snippets\schedule_automator\weekly_period\src\main\.tests\integration\module.main.tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="Deployment validation" executed="True" result="Failure" success="False" time="0.2028" asserts="0" description="Deployment validation">
+            <results>
+              <test-suite type="TestFixture" name="Deployment validation.Storage account integration" executed="True" result="Failure" success="False" time="0.1788" asserts="0" description="Deployment validation.Storage account integration">
+                <results>
+                  <test-case description="should storage account exist" name="Deployment validation.Storage account integration.should storage account exist" time="0" asserts="0" success="False" result="Failure" executed="True">
+                    <failure>
+                      <message>This test should run but it did not. Most likely a setup in some parent block failed.</message>
+                      <stack-trace />
+                    </failure>
+                  </test-case>
+                  <test-case description="should be Standard_GRS SKU" name="Deployment validation.Storage account integration.should be Standard_GRS SKU" time="0" asserts="0" success="False" result="Failure" executed="True">
+                    <failure>
+                      <message>This test should run but it did not. Most likely a setup in some parent block failed.</message>
+                      <stack-trace />
+                    </failure>
+                  </test-case>
+                  <test-case description="should have not public blob access" name="Deployment validation.Storage account integration.should have not public blob access" time="0" asserts="0" success="False" result="Failure" executed="True">
+                    <failure>
+                      <message>This test should run but it did not. Most likely a setup in some parent block failed.</message>
+                      <stack-trace />
+                    </failure>
+                  </test-case>
+                  <test-case description="should have minimum TLS version" name="Deployment validation.Storage account integration.should have minimum TLS version" time="0" asserts="0" success="False" result="Failure" executed="True">
+                    <failure>
+                      <message>This test should run but it did not. Most likely a setup in some parent block failed.</message>
+                      <stack-trace />
+                    </failure>
+                  </test-case>
+                  <test-case description="should have only https traffic" name="Deployment validation.Storage account integration.should have only https traffic" time="0" asserts="0" success="False" result="Failure" executed="True">
+                    <failure>
+                      <message>This test should run but it did not. Most likely a setup in some parent block failed.</message>
+                      <stack-trace />
+                    </failure>
+                  </test-case>
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

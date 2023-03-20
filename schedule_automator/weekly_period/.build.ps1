@@ -266,4 +266,72 @@ task GenerateDocs {
     }
 }
 
+task ValidateBicep {
+    Write-Build Yellow 'Validating Bicep tests'
+    if (-not (Test-Path $TestDirectory))
+    {
+        New-Item -Path $TestDirectory -ItemType Directory -Force
+    }
+
+    Write-Build Yellow "Retrieving test files in $TemplatePath"
+    $Tests = (Get-ChildItem -Path $TemplatePath -Recurse -Include *.tests.bicep)
+
+    $OutputPath = Join-Path -Path $TestDirectory -ChildPath TestResults.xml
+    Write-Build Yellow "Output test results in $OutputPath"
+
+    Write-Build Yellow 'Testing Az rules'
+
+    $Params = @{
+        InputPath    = $Tests
+        Outcome      = 'Pass', 'Error', 'Fail'
+        Format       = 'File'
+        OutputFormat = 'NUnit3'
+        OutputPath   = $OutputPath
+    }
+    Write-Build Yellow $Tests
+
+    Write-Build Yellow 'Invoking Params'
+
+    Invoke-PSRule @Params
+
+    if (Test-Path $OutputPath)
+    {
+        [xml]$TestResults = Get-Content $OutputPath
+
+        if ($TestResults.'test-results'.failures -gt 0 -or $TestResults.'test-results'.errors -gt 0)
+        {
+            Throw "Found $($TestResults.'test-results'.failures) failures and $($TestResults.'test-results'.errors) errors when executing Az rules"
+        }
+    }
+    else
+    {
+        Write-Warning 'No test results outputted'
+    }
+}
+
+task IntegrationTest {
+    if (-not (Get-AzContext))
+    {
+        Throw "Use Connect-AzAccount before running integration test"
+    }
+
+    Write-Build Yellow "Running integration test in $TemplatePath"
+
+    $Configuration = New-PesterConfiguration
+    $Container = New-PesterContainer -Path (Get-ChildItem $TemplatePath -Recurse -Include "*.Tests.ps1").FullName
+    $Configuration.Run.Container = $Container
+    $Configuration.Output.Verbosity = 'Detailed'
+    $Configuration.Filter.Tag = 'Integration'
+    $Configuration.Should.ErrorAction = 'Stop'
+    $Configuration.TestResult.Enabled = $true
+    $Configuration.TestResult.OutputFormat = 'NunitXml'
+    $Configuration.TestResult.OutputPath = ($TestDirectory + 'IntegrationResults.xml')
+    $Configuration.Run.PassThru = $true
+    $TestResult = Invoke-Pester -Configuration $Configuration
+    if ($TestResult.Failed.Count -gt 0)
+    {
+        Throw "One or more Pester tests failed."
+    }
+}
+
 task . Clean, BuildBicep

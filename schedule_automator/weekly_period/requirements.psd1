@@ -1,17 +1,20 @@
 @{
-    PSDependOptions  = @{
+    PSDependOptions     = @{
         Target = 'CurrentUser'
     }
-    InvokeBuild      = @{
+    InvokeBuild         = @{
         Version = '5.9.10'
     }
-    az               = @{
+    az                  = @{
         MinimumVersion = 'Latest'
     }
-    PSRule               = @{
+    PSRule              = @{
         Version = '2.3.2'
     }
     'PSRule.Rules.Azure' = @{
-        Version = '1.18.1'
+        Version = '1.3.1'
+    }
+    Pester               = @{
+        Version = '5.3.3'
     }
 }
