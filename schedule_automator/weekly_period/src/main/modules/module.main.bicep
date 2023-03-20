@@ -1,9 +1,10 @@
 
 var templateSpecName = 'automationaccount'
-var version = '0.0.1'
+var version = '0.0.3'
 var releaseNotes = 'Template to deploy automation account'
 
 param automationAccountName string
+@description('example: [{"name": "monday","startTime": "08:30:00","endTime": "17:30:00"}, {"name": "tuesday","startTime": "08:30:00","endTime": "17:30:00"}]')
 param days array
 param uniqueId string = guid(newGuid(), automationAccountName)
 resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' existing = {

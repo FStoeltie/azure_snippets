@@ -1,0 +1,86 @@
+parameters:
+  - name: templatePath
+    type: string
+    default: '$(System.DefaultWorkingDirectory)\src'
+  - name: bicepBuild
+    type: string
+
+steps:
+  - task: PowerShell@2
+    displayName: 'Build ${{ parameters.bicepBuild }} Bicep file'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $Params = @{
+          Task = 'BuildBicep'
+          TemplatePath = "${{ parameters.templatePath }}\${{ parameters.bicepBuild }}"
+        }
+        Invoke-Build @Params
+
+parameters:
+  - name: moduleName
+    type: string
+    default: 'InvokeBuild'
+
+steps:
+  - task: PowerShell@2
+    displayName: 'Install single module'
+    inputs:
+      targetType: 'inline'
+      script: Install-Module -Name "${{ parameters.moduleName }}" -Force -Scope CurrentUser
+
+parameters:
+  - name: artifactName
+    type: string
+    default: json
+  - name: targetPath
+    type: string
+    default: $(System.DefaultWorkingDirectory)\build
+
+steps:
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish ${{parameters.artifactName}} artifact'
+    inputs:
+      artifactName: ${{parameters.artifactName}}
+      targetPath: ${{parameters.targetPath}}
+
+parameters:
+  - name: agent
+    type: string
+    default: windows-latest
+  - name: templatePath
+    type: string
+    default: '$(System.DefaultWorkingDirectory)\src'
+  - name: bicepBuild
+    type: string
+  - name: preBuildSteps
+    type: stepList
+    default:
+      - template: ../task/install-single-module-task.yml
+  - name: afterBuildSteps
+    type: stepList
+    default:
+      - template: ../task/publish-pipeline-artifact-task.yml
+
+jobs:
+  - job: Build
+    pool:
+      vmImage: ${{ parameters.agent }}
+    steps:
+      - ${{ parameters.preBuildSteps }}
+      - template: ../task/build-bicep-task.yml
+        parameters:
+          templatePath: ${{ parameters.templatePath }}
+          bicepBuild: ${{ parameters.bicepBuild }}
+      - ${{ parameters.afterBuildSteps }}
+
+variables:
+  bicepBuild: snippet_template
+
+stages:
+  - stage: Build
+    displayName: "Build"
+    jobs:
+      - template: ..\..\templates\job\build-bicep-job.yml
+        parameters:
+          bicepBuild: $(bicepBuild)

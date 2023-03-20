@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.15.31.15270",
-      "templateHash": "7599912462116459861"
+      "templateHash": "13831742387493301078"
     }
   },
   "parameters": {
@@ -48,7 +48,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.15.31.15270",
-              "templateHash": "11225063434985795887"
+              "templateHash": "12420594484830084938"
             }
           },
           "parameters": {
@@ -56,7 +56,10 @@
               "type": "string"
             },
             "days": {
-              "type": "array"
+              "type": "array",
+              "metadata": {
+                "description": "example: [{\"name\": \"monday\",\"startTime\": \"08:30:00\",\"endTime\": \"17:30:00\"}, {\"name\": \"tuesday\",\"startTime\": \"08:30:00\",\"endTime\": \"17:30:00\"}]"
+              }
             },
             "uniqueId": {
               "type": "string",
@@ -65,7 +68,7 @@
           },
           "variables": {
             "templateSpecName": "automationaccount",
-            "version": "0.0.1",
+            "version": "0.0.3",
             "releaseNotes": "Template to deploy automation account"
           },
           "resources": [
