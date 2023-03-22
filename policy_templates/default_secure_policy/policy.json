@@ -1,0 +1,171 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.15.31.15270",
+      "templateHash": "15269080008121542318"
+    }
+  },
+  "parameters": {
+    "allowedSkus": {
+      "type": "array",
+      "defaultValue": [
+        "Standard_B1ls",
+        "Standard_A0",
+        "Basic_A0",
+        "Standard_B1s",
+        "Standard_A1",
+        "Basic_A1",
+        "Standard_B1ms",
+        "Standard_A1_v2",
+        "Standard_D1_v2",
+        "Standard_DS1_v2",
+        "Standard_D1",
+        "Standard_DS1",
+        "Standard_A2",
+        "Basic_A2",
+        "Standard_B2s",
+        "Standard_A2_v2"
+      ]
+    },
+    "allowedLocations": {
+      "type": "array",
+      "defaultValue": [
+        "westeurope",
+        "uksouth"
+      ]
+    },
+    "allowedResources": {
+      "type": "array",
+      "defaultValue": [
+        "Microsoft.Compute/virtualMachines",
+        "Microsoft.Web/sites",
+        "Microsoft.Storage/storageAccounts",
+        "Microsoft.ContainerInstance/containerGroups",
+        "Microsoft.ContainerService/managedClusters",
+        "Microsoft.Network/virtualNetworks",
+        "Microsoft.Network/loadBalancers",
+        "Microsoft.Network/networkInterfaces",
+        "Microsoft.Network/publicIPAddresses",
+        "Microsoft.Network/applicationSecurityGroups",
+        "Microsoft.Network/networkSecurityGroups",
+        "Microsoft.RecoveryServices/vaults",
+        "Microsoft.Web/serverfarms",
+        "Microsoft.Sql/servers",
+        "Microsoft.DocumentDB/databaseAccounts",
+        "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+        "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+        "Microsoft.DocumentDB/databaseAccounts/mongodbDatabases",
+        "Microsoft.DocumentDB/databaseAccounts/",
+        "Microsoft.Cache/Redis",
+        "Microsoft.KeyVault/vault",
+        "Microsoft.OperationalInsights/workspaces",
+        "Microsoft.Insights/alertrules",
+        "Microsoft.Automation/automationAccounts"
+      ]
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Authorization/policyDefinitions",
+      "apiVersion": "2020-09-01",
+      "name": "pol-sandbox-001",
+      "properties": {
+        "displayName": "[pol-sandbox-001] BlockVmSkus",
+        "policyType": "Custom",
+        "mode": "All",
+        "description": "[format('Policy to block creation of VMs if they are not of type: {0}', parameters('allowedSkus'))]",
+        "metadata": {
+          "version": "0.1.0",
+          "category": "category",
+          "source": "source"
+        },
+        "policyRule": {
+          "if": {
+            "allOf": [
+              {
+                "not": {
+                  "field": "type",
+                  "equals": "Microsoft.Compute/virtualMachines"
+                }
+              },
+              {
+                "not": {
+                  "field": "Microsoft.Compute/virtualMachines/sku.name",
+                  "in": "[parameters('allowedSkus')]"
+                }
+              }
+            ]
+          },
+          "then": {
+            "effect": "deny"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/policyDefinitions",
+      "apiVersion": "2020-09-01",
+      "name": "pol-sandbox-002",
+      "properties": {
+        "displayName": "[pol-sandbox-002] BlockIncorrectLocations",
+        "policyType": "Custom",
+        "mode": "All",
+        "description": "[format('Policy to block creation of resources if they are not in {0}', parameters('allowedLocations'))]",
+        "metadata": {
+          "version": "0.1.0",
+          "category": "category",
+          "source": "source"
+        },
+        "policyRule": {
+          "if": {
+            "allOf": [
+              {
+                "not": {
+                  "field": "location",
+                  "in": "[parameters('allowedLocations')]"
+                }
+              }
+            ]
+          },
+          "then": {
+            "effect": "deny"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/policyDefinitions",
+      "apiVersion": "2020-09-01",
+      "name": "pol-sandbox-003",
+      "properties": {
+        "displayName": "[pol-sandbox-003] BlockResourceTypes",
+        "policyType": "Custom",
+        "mode": "All",
+        "description": "[format('Policy to block creation of resources if they are not one of the following: {0}', parameters('allowedResources'))]",
+        "metadata": {
+          "version": "0.1.0",
+          "category": "category",
+          "source": "source"
+        },
+        "policyRule": {
+          "if": {
+            "allOf": [
+              {
+                "not": {
+                  "field": "type",
+                  "in": "[parameters('allowedResources')]"
+                }
+              }
+            ]
+          },
+          "then": {
+            "effect": "deny"
+          }
+        }
+      }
+    }
+  ]
+}
