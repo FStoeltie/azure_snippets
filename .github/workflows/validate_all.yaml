@@ -6,7 +6,9 @@ jobs:
     steps:
       - name: test
         shell: pwsh
-        run: Invoke-Build BuildBicep
+        run: |
+          Install-Module InvokeBuild
+          Invoke-Build BuildBicep
 
   
   
