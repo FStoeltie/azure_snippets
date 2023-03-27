@@ -1,0 +1,12 @@
+name: validate-all-templates
+on: [push]
+jobs:
+  :
+    runs-on: ubuntu-latest 
+    steps:
+      - name: test
+        shell: pwsh
+        run: Invoke-Build BuildBicep
+
+  
+  
