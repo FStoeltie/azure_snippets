@@ -5,16 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.15.31.15270",
-      "templateHash": "13831742387493301078"
-    }
-  },
-  "parameters": {
-    "location": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]",
-      "metadata": {
-        "description": "Configures the location to deploy the Azure resources."
-      }
+      "templateHash": "3955874121933086824"
     }
   },
   "resources": [
@@ -48,7 +39,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.15.31.15270",
-              "templateHash": "12420594484830084938"
+              "templateHash": "10068886784070014539"
             }
           },
           "parameters": {
@@ -79,7 +70,7 @@
               },
               "condition": "[empty(parameters('days')[copyIndex()].startTime)]",
               "type": "Microsoft.Automation/automationAccounts/schedules",
-              "apiVersion": "2019-06-01",
+              "apiVersion": "2022-08-08",
               "name": "[format('{0}/{1}', parameters('automationAccountName'), format('start-{0}-{1}', parameters('days')[copyIndex()].name, parameters('uniqueId')))]",
               "properties": {
                 "advancedSchedule": {
@@ -87,7 +78,7 @@
                     "[parameters('days')[copyIndex()].name]"
                   ]
                 },
-                "description": "string",
+                "description": "[format('{0}, {1}, {2}', variables('templateSpecName'), variables('version'), variables('releaseNotes'))]",
                 "frequency": "Week",
                 "startTime": "[parameters('days')[copyIndex()].startTime]"
               }
@@ -99,7 +90,7 @@
               },
               "condition": "[empty(parameters('days')[copyIndex()].endTime)]",
               "type": "Microsoft.Automation/automationAccounts/schedules",
-              "apiVersion": "2019-06-01",
+              "apiVersion": "2022-08-08",
               "name": "[format('{0}/{1}', parameters('automationAccountName'), format('end-{0}-{1}', parameters('days')[copyIndex()].name, parameters('uniqueId')))]",
               "properties": {
                 "advancedSchedule": {
@@ -107,13 +98,16 @@
                     "[parameters('days')[copyIndex()].name]"
                   ]
                 },
-                "description": "string",
+                "description": "[format('{0}, {1}, {2}', variables('templateSpecName'), variables('version'), variables('releaseNotes'))]",
                 "frequency": "Week",
                 "startTime": "[parameters('days')[copyIndex()].startTime]"
               }
             }
           ]
         }
+      },
+      "metadata": {
+        "description": "Configures the location to deploy the Azure resources."
       }
     }
   ]

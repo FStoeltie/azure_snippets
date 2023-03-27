@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.15.31.15270",
-      "templateHash": "15269080008121542318"
+      "templateHash": "2448070123049396871"
     }
   },
   "parameters": {
@@ -55,10 +55,6 @@
         "Microsoft.Web/serverfarms",
         "Microsoft.Sql/servers",
         "Microsoft.DocumentDB/databaseAccounts",
-        "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
-        "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
-        "Microsoft.DocumentDB/databaseAccounts/mongodbDatabases",
-        "Microsoft.DocumentDB/databaseAccounts/",
         "Microsoft.Cache/Redis",
         "Microsoft.KeyVault/vault",
         "Microsoft.OperationalInsights/workspaces",
@@ -166,6 +162,71 @@
           }
         }
       }
+    },
+    {
+      "type": "Microsoft.Authorization/policyDefinitions",
+      "apiVersion": "2020-09-01",
+      "name": "pol-sandbox-004",
+      "properties": {
+        "displayName": "[pol-sandbox-004] BlockAppServiceSkus",
+        "policyType": "Custom",
+        "mode": "All",
+        "description": "[format('Policy to block creation of resources if they are not one of the following: {0}', parameters('allowedResources'))]",
+        "metadata": {
+          "version": "0.1.0",
+          "category": "category",
+          "source": "source"
+        },
+        "policyRule": {
+          "if": {
+            "allOf": [
+              {
+                "not": {
+                  "field": "type",
+                  "in": "[parameters('allowedResources')]"
+                }
+              }
+            ]
+          },
+          "then": {
+            "effect": "deny"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/policySetDefinitions",
+      "apiVersion": "2020-09-01",
+      "name": "poli-sandbox-001",
+      "properties": {
+        "displayName": "[poli-sandbox-001] PolicyInitiative",
+        "policyType": "Custom",
+        "description": "Policy initiative for Sandbox Management Group",
+        "metadata": {
+          "version": "0.1.0",
+          "category": "category",
+          "source": "source"
+        },
+        "policyDefinitions": [
+          {
+            "policyDefinitionId": "[format('{0}', extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'pol-sandbox-003'))]",
+            "policyDefinitionReferenceId": ""
+          },
+          {
+            "policyDefinitionId": "[format('{0}', extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'pol-sandbox-002'))]",
+            "policyDefinitionReferenceId": ""
+          },
+          {
+            "policyDefinitionId": "[format('{0}', extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'pol-sandbox-001'))]",
+            "policyDefinitionReferenceId": ""
+          }
+        ]
+      },
+      "dependsOn": [
+        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'pol-sandbox-002')]",
+        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'pol-sandbox-003')]",
+        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'pol-sandbox-001')]"
+      ]
     }
   ]
 }

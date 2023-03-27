@@ -18,7 +18,6 @@ Param (
     [bool]$IncludeWikiTOC = $false
 )
 
-
 task Clean {
     Remove-Item -Path $BuildDirectory -Force -ErrorAction SilentlyContinue -Recurse
 }
@@ -50,7 +49,7 @@ task TestBicep {
     
     $ModulePath = Get-ChildItem -Path $TestDirectory -Filter arm-ttk.psm1 -Recurse 
     if (-not $ModulePath) {
-        Write-Build Yellow "ARM Test Toolkit was not found, downloading... "
+        Write-Build Yellow "ARM Test Toolkit was not found, downloading... " 
         $ARMTTKUrl = 'https://azurequickstartsservice.blob.core.windows.net/ttk/latest/arm-template-toolkit.zip'
         $DestinationDirectory = $TestDirectory + (Split-Path -Path $ARMTTKUrl -Leaf)
         try {
@@ -70,11 +69,10 @@ task TestBicep {
 
     foreach ($Package in $Packages) {
         Write-Build Yellow "Testing against: $Package"
-        $Result = Test-AzTemplate -TemplatePath $Package -ErrorAction SilentlyContinue
-        Write-Output $Result.Name
+        $Result = Test-AzTemplate -TemplatePath $Package -ErrorAction Stop
+        $Result | Format-Table -Property Name, Passed
     }
 }
-
 
 task PublishBicep {
     $Script:Templates = [System.Collections.ArrayList]@()

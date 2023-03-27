@@ -11,8 +11,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' 
   name: automationAccountName
 }
 
-
-resource dayStartSchedules 'Microsoft.Automation/automationAccounts/schedules@2019-06-01' = [for day in days : if (empty(day.startTime)) {
+resource dayStartSchedules 'Microsoft.Automation/automationAccounts/schedules@2022-08-08' = [for day in days : if (empty(day.startTime)) {
   name: 'start-${day.name}-${uniqueId}'
   parent: automationAccount
   properties: {
@@ -30,15 +29,16 @@ resource dayStartSchedules 'Microsoft.Automation/automationAccounts/schedules@20
         day.name
       ]
     }
-    description: 'string'
+    description: '${templateSpecName}, ${version}, ${releaseNotes}'
     frequency: 'Week'
     startTime: day.startTime
   }
 }]
 
-resource dayEndSchedules 'Microsoft.Automation/automationAccounts/schedules@2019-06-01' = [for day in days : if (empty(day.endTime)) {
+resource dayEndSchedules 'Microsoft.Automation/automationAccounts/schedules@2022-08-08' = [for day in days : if (empty(day.endTime)) {
   name: 'end-${day.name}-${uniqueId}'
   parent: automationAccount
+
   properties: {
     advancedSchedule: {
       // monthDays: [
@@ -54,7 +54,7 @@ resource dayEndSchedules 'Microsoft.Automation/automationAccounts/schedules@2019
         day.name
       ]
     }
-    description: 'string'
+    description: '${templateSpecName}, ${version}, ${releaseNotes}'
     frequency: 'Week'
     startTime: day.startTime
   }

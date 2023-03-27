@@ -1,5 +1,40 @@
 targetScope = 'managementGroup'
 
+param policyConfigurations object = {
+  policyBlockVmSkus: {
+    name: 'pol-sandbox-vm-001'
+    metadata: {
+      version: '0.1.0'
+      category: 'category'
+      source: 'source'
+    }
+  }
+  policyBlockIncorrectLocations: {
+    name: 'pol-sandbox-loc-002'
+    metadata: {
+      version: '0.1.0'
+      category: 'category'
+      source: 'source'
+    }
+  }
+  policyBlockResourceTypes: {
+    name: 'pol-sandbox-res-003'
+    metadata: {
+      version: '0.1.0'
+      category: 'category'
+      source: 'source'
+    }
+  }
+  policyBlockAppServiceSkus: {
+    name: 'pol-sandbox-app-004'
+    metadata: {
+      version: '0.1.0'
+      category: 'category'
+      source: 'source'
+    }
+  }
+}
+
 param allowedSkus array = [
   'Standard_B1ls'
   'Standard_A0'
@@ -36,34 +71,40 @@ param allowedResources array = [
   'Microsoft.RecoveryServices/vaults'
   'Microsoft.Web/serverfarms'
   'Microsoft.Sql/servers'
+  'Microsoft.Sql/servers/databases'
+  'Microsoft.Sql/servers/connectionPolicies'
+  'Microsoft.Sql/servers/firewallrules'
   'Microsoft.DocumentDB/databaseAccounts'
   'Microsoft.Cache/Redis'
   'Microsoft.KeyVault/vault'
   'Microsoft.OperationalInsights/workspaces'
   'Microsoft.Insights/alertrules'
   'Microsoft.Automation/automationAccounts'
+  'Microsoft.Authorization'
+  'Microsoft.Subscriptions/resourceGroups'
 ]
 
 resource policyBlockVmSkus 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
-  name: 'pol-sandbox-001'
-  properties: {
-    displayName: '[pol-sandbox-001] BlockVmSkus'
+  name: '${policyConfigurations.policyBlockVmSkus.name}'
+  properties: { 
+    displayName: '[${policyConfigurations.policyBlockVmSkus.name}] BlockVmSkus'
     policyType: 'Custom'
     mode: 'All'
-    description: 'Policy to block creation of VMs if they are not of type: ${allowedSkus}'
-    metadata: {
-      version: '0.1.0'
-      category: 'category'
-      source: 'source'
-    }
+    description: 'Policy to whitelist virtual machines SKUs'
+    metadata: policyConfigurations.policyBlockVmSkus.metadata
     policyRule: {
       if: {
         allOf: [
           {
             not: {
-              field: 'type'
-              equals: 'Microsoft.Compute/virtualMachines'
+              field: 'Microsoft.Compute/virtualMachines/properties/priority'
+              equals: 'Spot'
             }
+          }
+          {
+            field: 'type'
+            equals: 'Microsoft.Compute/virtualMachines'
+          
           }
           {
             not: {
@@ -80,18 +121,15 @@ resource policyBlockVmSkus 'Microsoft.Authorization/policyDefinitions@2020-09-01
   }
 }
 
+
 resource policyBlockIncorrectLocations 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
-  name: 'pol-sandbox-002'
+  name: '${policyConfigurations.policyBlockIncorrectLocations.name}'
   properties: {
-    displayName: '[pol-sandbox-002] BlockIncorrectLocations'
+    displayName: '[${policyConfigurations.policyBlockIncorrectLocations.name}] BlockIncorrectLocations'
     policyType: 'Custom'
     mode: 'All'
-    description: 'Policy to block creation of resources if they are not in ${allowedLocations}'
-    metadata: {
-      version: '0.1.0'
-      category: 'category'
-      source: 'source'
-    }
+    description: 'Policy to whitelist regions'
+    metadata: policyConfigurations.policyBlockIncorrectLocations.metadata
     policyRule: {
       if: {
         allOf: [
@@ -111,17 +149,13 @@ resource policyBlockIncorrectLocations 'Microsoft.Authorization/policyDefinition
 }
 
 resource policyBlockResourceTypes 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
-  name: 'pol-sandbox-003'
+  name: policyConfigurations.policyBlockResourceTypes.name
   properties: {
-    displayName: '[pol-sandbox-003] BlockResourceTypes'
+    displayName: '[${policyConfigurations.policyBlockResourceTypes.name}] BlockResourceTypes'
     policyType: 'Custom'
     mode: 'All'
-    description: 'Policy to block creation of resources if they are not one of the following: ${allowedResources}'
-    metadata: {
-      version: '0.1.0'
-      category: 'category'
-      source: 'source'
-    }
+    description: 'Policy to whitelist resource types'
+    metadata: policyConfigurations.policyBlockResourceTypes.metadata
     policyRule: {
       if: {
         allOf: [
@@ -141,9 +175,9 @@ resource policyBlockResourceTypes 'Microsoft.Authorization/policyDefinitions@202
 }
 
 resource policyBlockAppServiceSkus 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
-  name: 'pol-sandbox-004'
+  name: policyConfigurations.policyBlockAppServiceSkus.name
   properties: {
-    displayName: '[pol-sandbox-004] BlockAppServiceSkus'
+    displayName: '[${policyConfigurations.policyBlockAppServiceSkus.name}] BlockAppServiceSkus'
     policyType: 'Custom'
     mode: 'All'
     description: 'Policy to block creation of resources if they are not one of the following: ${allowedResources}'
