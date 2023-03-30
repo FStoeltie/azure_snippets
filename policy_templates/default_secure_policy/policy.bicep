@@ -1,4 +1,4 @@
-targetScope = 'managementGroup'
+targetScope = 'subscription'
 
 param policyConfigurations object = {
   policyBlockVmSkus: {
@@ -57,31 +57,33 @@ param allowedSkus array = [
 param allowedLocations array = [ 'westeurope', 'uksouth' ]
 
 param allowedResources array = [
-  'Microsoft.Compute/virtualMachines'
-  'Microsoft.Web/sites'
-  'Microsoft.Storage/storageAccounts'
-  'Microsoft.ContainerInstance/containerGroups'
-  'Microsoft.ContainerService/managedClusters'
-  'Microsoft.Network/virtualNetworks'
-  'Microsoft.Network/loadBalancers'
-  'Microsoft.Network/networkInterfaces'
-  'Microsoft.Network/publicIPAddresses'
-  'Microsoft.Network/applicationSecurityGroups'
-  'Microsoft.Network/networkSecurityGroups'
-  'Microsoft.RecoveryServices/vaults'
-  'Microsoft.Web/serverfarms'
-  'Microsoft.Sql/servers'
-  'Microsoft.Sql/servers/databases'
-  'Microsoft.Sql/servers/connectionPolicies'
-  'Microsoft.Sql/servers/firewallrules'
-  'Microsoft.DocumentDB/databaseAccounts'
-  'Microsoft.Cache/Redis'
-  'Microsoft.KeyVault/vault'
-  'Microsoft.OperationalInsights/workspaces'
-  'Microsoft.Insights/alertrules'
-  'Microsoft.Automation/automationAccounts'
-  'Microsoft.Authorization'
-  'Microsoft.Subscriptions/resourceGroups'
+  'Microsoft.Storage/*'
+//   'Microsoft.Compute/virtualMachines'
+//   'Microsoft.Web/sites'
+//   'Microsoft.Web/sites/config'
+//   'Microsoft.Storage/storageAccounts'
+//   'Microsoft.ContainerInstance/containerGroups'
+//   'Microsoft.ContainerService/managedClusters'
+//   'Microsoft.Network/virtualNetworks'
+//   'Microsoft.Network/loadBalancers'
+//   'Microsoft.Network/networkInterfaces'
+//   'Microsoft.Network/publicIPAddresses'
+//   'Microsoft.Network/applicationSecurityGroups'
+//   'Microsoft.Network/networkSecurityGroups'
+//   'Microsoft.RecoveryServices/vaults'
+//   'Microsoft.Web/serverfarms'
+//   'Microsoft.Sql/servers'
+//   'Microsoft.Sql/servers/databases'
+//   'Microsoft.Sql/servers/connectionPolicies'
+//   'Microsoft.Sql/servers/firewallrules'
+//   'Microsoft.DocumentDB/databaseAccounts'
+//   'Microsoft.Cache/Redis'
+//   'Microsoft.KeyVault/vault'
+//   'Microsoft.OperationalInsights/workspaces'
+//   'Microsoft.Insights/alertrules'
+//   'Microsoft.Automation/automationAccounts'
+//   'Microsoft.Authorization'
+//   'Microsoft.Subscriptions/resourceGroups'
 ]
 
 resource policyBlockVmSkus 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
@@ -158,14 +160,12 @@ resource policyBlockResourceTypes 'Microsoft.Authorization/policyDefinitions@202
     metadata: policyConfigurations.policyBlockResourceTypes.metadata
     policyRule: {
       if: {
-        allOf: [
-          {
+        allOf: [ for item in allowedResources: {
             not: {
               field: 'type'
-              in: allowedResources
+              like: item
             }
-          }
-        ]
+        }]
       }
       then: {
         effect: 'deny'

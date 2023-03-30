@@ -5,10 +5,47 @@
     "_generator": {
       "name": "bicep",
       "version": "0.15.31.15270",
-      "templateHash": "2448070123049396871"
+      "templateHash": "13631773772603572782"
     }
   },
   "parameters": {
+    "policyConfigurations": {
+      "type": "object",
+      "defaultValue": {
+        "policyBlockVmSkus": {
+          "name": "pol-sandbox-vm-001",
+          "metadata": {
+            "version": "0.1.0",
+            "category": "category",
+            "source": "source"
+          }
+        },
+        "policyBlockIncorrectLocations": {
+          "name": "pol-sandbox-loc-002",
+          "metadata": {
+            "version": "0.1.0",
+            "category": "category",
+            "source": "source"
+          }
+        },
+        "policyBlockResourceTypes": {
+          "name": "pol-sandbox-res-003",
+          "metadata": {
+            "version": "0.1.0",
+            "category": "category",
+            "source": "source"
+          }
+        },
+        "policyBlockAppServiceSkus": {
+          "name": "pol-sandbox-app-004",
+          "metadata": {
+            "version": "0.1.0",
+            "category": "category",
+            "source": "source"
+          }
+        }
+      }
+    },
     "allowedSkus": {
       "type": "array",
       "defaultValue": [
@@ -40,26 +77,7 @@
     "allowedResources": {
       "type": "array",
       "defaultValue": [
-        "Microsoft.Compute/virtualMachines",
-        "Microsoft.Web/sites",
-        "Microsoft.Storage/storageAccounts",
-        "Microsoft.ContainerInstance/containerGroups",
-        "Microsoft.ContainerService/managedClusters",
-        "Microsoft.Network/virtualNetworks",
-        "Microsoft.Network/loadBalancers",
-        "Microsoft.Network/networkInterfaces",
-        "Microsoft.Network/publicIPAddresses",
-        "Microsoft.Network/applicationSecurityGroups",
-        "Microsoft.Network/networkSecurityGroups",
-        "Microsoft.RecoveryServices/vaults",
-        "Microsoft.Web/serverfarms",
-        "Microsoft.Sql/servers",
-        "Microsoft.DocumentDB/databaseAccounts",
-        "Microsoft.Cache/Redis",
-        "Microsoft.KeyVault/vault",
-        "Microsoft.OperationalInsights/workspaces",
-        "Microsoft.Insights/alertrules",
-        "Microsoft.Automation/automationAccounts"
+        "Microsoft.Storage/*"
       ]
     }
   },
@@ -67,25 +85,25 @@
     {
       "type": "Microsoft.Authorization/policyDefinitions",
       "apiVersion": "2020-09-01",
-      "name": "pol-sandbox-001",
+      "name": "[format('{0}', parameters('policyConfigurations').policyBlockVmSkus.name)]",
       "properties": {
-        "displayName": "[pol-sandbox-001] BlockVmSkus",
+        "displayName": "[format('[{0}] BlockVmSkus', parameters('policyConfigurations').policyBlockVmSkus.name)]",
         "policyType": "Custom",
         "mode": "All",
-        "description": "[format('Policy to block creation of VMs if they are not of type: {0}', parameters('allowedSkus'))]",
-        "metadata": {
-          "version": "0.1.0",
-          "category": "category",
-          "source": "source"
-        },
+        "description": "Policy to whitelist virtual machines SKUs",
+        "metadata": "[parameters('policyConfigurations').policyBlockVmSkus.metadata]",
         "policyRule": {
           "if": {
             "allOf": [
               {
                 "not": {
-                  "field": "type",
-                  "equals": "Microsoft.Compute/virtualMachines"
+                  "field": "Microsoft.Compute/virtualMachines/properties/priority",
+                  "equals": "Spot"
                 }
+              },
+              {
+                "field": "type",
+                "equals": "Microsoft.Compute/virtualMachines"
               },
               {
                 "not": {
@@ -104,17 +122,13 @@
     {
       "type": "Microsoft.Authorization/policyDefinitions",
       "apiVersion": "2020-09-01",
-      "name": "pol-sandbox-002",
+      "name": "[format('{0}', parameters('policyConfigurations').policyBlockIncorrectLocations.name)]",
       "properties": {
-        "displayName": "[pol-sandbox-002] BlockIncorrectLocations",
+        "displayName": "[format('[{0}] BlockIncorrectLocations', parameters('policyConfigurations').policyBlockIncorrectLocations.name)]",
         "policyType": "Custom",
         "mode": "All",
-        "description": "[format('Policy to block creation of resources if they are not in {0}', parameters('allowedLocations'))]",
-        "metadata": {
-          "version": "0.1.0",
-          "category": "category",
-          "source": "source"
-        },
+        "description": "Policy to whitelist regions",
+        "metadata": "[parameters('policyConfigurations').policyBlockIncorrectLocations.metadata]",
         "policyRule": {
           "if": {
             "allOf": [
@@ -135,24 +149,24 @@
     {
       "type": "Microsoft.Authorization/policyDefinitions",
       "apiVersion": "2020-09-01",
-      "name": "pol-sandbox-003",
+      "name": "[parameters('policyConfigurations').policyBlockResourceTypes.name]",
       "properties": {
-        "displayName": "[pol-sandbox-003] BlockResourceTypes",
+        "displayName": "[format('[{0}] BlockResourceTypes', parameters('policyConfigurations').policyBlockResourceTypes.name)]",
         "policyType": "Custom",
         "mode": "All",
-        "description": "[format('Policy to block creation of resources if they are not one of the following: {0}', parameters('allowedResources'))]",
-        "metadata": {
-          "version": "0.1.0",
-          "category": "category",
-          "source": "source"
-        },
+        "description": "Policy to whitelist resource types",
+        "metadata": "[parameters('policyConfigurations').policyBlockResourceTypes.metadata]",
         "policyRule": {
           "if": {
-            "allOf": [
+            "copy": [
               {
-                "not": {
-                  "field": "type",
-                  "in": "[parameters('allowedResources')]"
+                "name": "allOf",
+                "count": "[length(parameters('allowedResources'))]",
+                "input": {
+                  "not": {
+                    "field": "type",
+                    "like": "[parameters('allowedResources')[copyIndex('allOf')]]"
+                  }
                 }
               }
             ]
@@ -166,9 +180,9 @@
     {
       "type": "Microsoft.Authorization/policyDefinitions",
       "apiVersion": "2020-09-01",
-      "name": "pol-sandbox-004",
+      "name": "[parameters('policyConfigurations').policyBlockAppServiceSkus.name]",
       "properties": {
-        "displayName": "[pol-sandbox-004] BlockAppServiceSkus",
+        "displayName": "[format('[{0}] BlockAppServiceSkus', parameters('policyConfigurations').policyBlockAppServiceSkus.name)]",
         "policyType": "Custom",
         "mode": "All",
         "description": "[format('Policy to block creation of resources if they are not one of the following: {0}', parameters('allowedResources'))]",
@@ -209,23 +223,23 @@
         },
         "policyDefinitions": [
           {
-            "policyDefinitionId": "[format('{0}', extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'pol-sandbox-003'))]",
+            "policyDefinitionId": "[format('{0}', extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', parameters('policyConfigurations').policyBlockResourceTypes.name))]",
             "policyDefinitionReferenceId": ""
           },
           {
-            "policyDefinitionId": "[format('{0}', extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'pol-sandbox-002'))]",
+            "policyDefinitionId": "[format('{0}', extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', format('{0}', parameters('policyConfigurations').policyBlockIncorrectLocations.name)))]",
             "policyDefinitionReferenceId": ""
           },
           {
-            "policyDefinitionId": "[format('{0}', extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'pol-sandbox-001'))]",
+            "policyDefinitionId": "[format('{0}', extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', format('{0}', parameters('policyConfigurations').policyBlockVmSkus.name)))]",
             "policyDefinitionReferenceId": ""
           }
         ]
       },
       "dependsOn": [
-        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'pol-sandbox-002')]",
-        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'pol-sandbox-003')]",
-        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'pol-sandbox-001')]"
+        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', format('{0}', parameters('policyConfigurations').policyBlockIncorrectLocations.name))]",
+        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', parameters('policyConfigurations').policyBlockResourceTypes.name)]",
+        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', format('{0}', parameters('policyConfigurations').policyBlockVmSkus.name))]"
       ]
     }
   ]
