@@ -87,9 +87,9 @@ param allowedResources array = [
 ]
 
 resource policyBlockVmSkus 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
-  name: '${policyConfigurations.policyBlockVmSkus.name}'
+  name: '${policyConfigurations.policyBlockVmSkus.name}test123678'
   properties: { 
-    displayName: '[${policyConfigurations.policyBlockVmSkus.name}] BlockVmSkus'
+    displayName: '[${policyConfigurations.policyBlockVmSkus.name}] BlockVmSkus12345678'
     policyType: 'Custom'
     mode: 'All'
     description: 'Policy to whitelist virtual machines SKUs'
@@ -98,21 +98,27 @@ resource policyBlockVmSkus 'Microsoft.Authorization/policyDefinitions@2020-09-01
       if: {
         allOf: [
           {
-            not: {
-              field: 'Microsoft.Compute/virtualMachines/properties/priority'
-              equals: 'Spot'
-            }
+            anyOf: [
+              {
+                
+                  field: 'Microsoft.Compute/virtualMachines/storageProfile.dataDisks[*].diskSizeGB'
+                  greater: 64
+              }
+              {
+                field: 'Microsoft.Compute/virtualMachines/priority'
+                exists: false
+              }
+              {
+                not: {
+                  field: 'Microsoft.Compute/virtualMachines/sku.name'
+                  in: allowedSkus
+                }
+              }
+            ]
           }
           {
             field: 'type'
             equals: 'Microsoft.Compute/virtualMachines'
-          
-          }
-          {
-            not: {
-              field: 'Microsoft.Compute/virtualMachines/sku.name'
-              in: allowedSkus
-            }
           }
         ]
       }
@@ -149,6 +155,7 @@ resource policyBlockIncorrectLocations 'Microsoft.Authorization/policyDefinition
     }
   }
 }
+
 
 resource policyBlockResourceTypes 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
   name: policyConfigurations.policyBlockResourceTypes.name
